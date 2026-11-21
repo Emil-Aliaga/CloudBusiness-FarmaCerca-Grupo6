@@ -1,156 +1,95 @@
-# FarmaCerca Inventario — MVP Cloud-ready v3
+FarmaCerca Inventario
 
-Prototipo académico para **Cloud Business**. La aplicación centraliza inventario de varias sucursales, permite consultar disponibilidad, detectar alertas y redistribuir stock entre locales.
+Sistema web de gestión de inventario multi-sucursal desarrollado para el proyecto final del curso Cloud Business — Grupo 6.
 
-La arquitectura está preparada para dos entornos sin cambiar la lógica de la aplicación:
+La solución busca centralizar la información de inventario de FarmaCerca, permitiendo consultar disponibilidad de productos entre sucursales, identificar situaciones críticas de stock y registrar transferencias de productos entre establecimientos.
 
-- **Local:** FastAPI + SQLite.
-- **AWS:** la misma app FastAPI + PostgreSQL en Amazon RDS usando `DATABASE_URL`.
+El proyecto está preparado para funcionar tanto en un entorno local como en AWS sin modificar la lógica principal de la aplicación.
 
-## Pantallas incluidas
+Funcionalidades principales
 
-1. **Dashboard**: KPIs, alertas, stock por sucursal y movimientos recientes.
-2. **Inventario**: búsqueda, filtros, estados de stock y edición de cantidades.
-3. **Detalle de producto**: stock del mismo producto en todas las sucursales, alertas, trazabilidad y recomendación automática de redistribución.
-4. **Sucursales**: resumen operativo de cada sede y acceso directo a su inventario.
-5. **Transferencias**: mueve stock entre sedes con validaciones y registro de movimientos.
-6. **Alertas**: agotados, stock bajo y productos próximos a vencer, con acciones rápidas.
+Dashboard
 
-Además, el menú muestra el **entorno activo** (Local/SQLite o AWS/PostgreSQL) y permite **restaurar el escenario demo** después de practicar cambios.
+Vista general de la situación del inventario:
 
-## Stack
+Productos registrados.
 
-- Python 3.12 recomendado
-- FastAPI
-- Jinja2
-- SQLAlchemy
-- SQLite para desarrollo
-- PostgreSQL / Amazon RDS para cloud
-- HTML + CSS + JavaScript
-- Docker opcional
+Unidades disponibles.
 
-## Ejecutar en Windows
+Productos agotados.
 
-### Opción rápida
+Productos con stock bajo.
 
-Haz doble clic en:
+Productos próximos a vencer.
 
-```text
-run_local.bat
-```
+Situación por sucursal.
 
-Después abre:
+Movimientos recientes.
 
-```text
-http://127.0.0.1:8000
-```
+Inventario
 
-### Opción manual
+Permite:
 
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn app:app --reload
-```
+Buscar productos por nombre, SKU o categoría.
 
-La aplicación crea automáticamente `farmacerca.db` y carga datos demo si la base está vacía.
+Filtrar por sucursal.
 
-## Ejecutar con Docker
+Filtrar por estado de inventario.
 
-```bash
-docker compose up --build
-```
+Consultar stock disponible.
 
-Abre:
+Identificar productos agotados o con stock bajo.
 
-```text
-http://localhost:8000
-```
+Actualizar cantidades.
 
-## Configuración de base de datos
+Detalle de producto
 
-La app lee la variable de entorno `DATABASE_URL`.
+Muestra la situación de un producto en todas las sucursales:
 
-### Local con SQLite
+Stock por establecimiento.
 
-Si no defines ninguna variable, usa SQLite automáticamente. También puedes crear `.env` copiando `.env.example`:
+Stock mínimo.
 
-```env
-DATABASE_URL=sqlite:///./farmacerca.db
-ENVIRONMENT=development
-```
+Estado de inventario.
 
-### AWS con PostgreSQL/RDS
+Fecha de vencimiento.
 
-Ejemplo:
+Historial de movimientos.
 
-```env
-DATABASE_URL=postgresql+psycopg://USUARIO:CONTRASENA@RDS_ENDPOINT:5432/farmacerca
-ENVIRONMENT=production
-```
+Recomendaciones de redistribución cuando existe falta de stock en una sucursal y disponibilidad en otra.
 
-No subas `.env` ni contraseñas al repositorio. `.gitignore` ya excluye `.env`.
+Sucursales
 
-## Flujo recomendado para la exposición
+Permite visualizar el estado del inventario de cada establecimiento y acceder directamente a los productos disponibles en una sede determinada.
 
-1. Abrir **Dashboard**.
-2. Entrar a **Inventario**.
-3. Buscar `Paracetamol`.
-4. Abrir **Detalle del producto**.
-5. Mostrar que La Molina está agotada y otra sede tiene disponibilidad.
-6. Pulsar **Transferir** hacia La Molina.
-7. Elegir una sede origen y transferir unidades.
-8. Volver al producto y comprobar que ambos stocks cambiaron.
-9. Mostrar que la alerta se actualiza de acuerdo con el nuevo stock.
-10. Si se desea repetir la presentación, ejecutar **reset_demo.bat** mientras la aplicación local está encendida.
+Transferencias
 
-## Entrega al compañero que desplegará AWS
+Permite registrar movimientos de productos entre establecimientos.
 
-Recomendado: subir esta carpeta a un repositorio privado/compartido de GitHub. El compañero debe recibir **todo el proyecto**, no solo `app.py`.
+El sistema valida:
 
-Archivos importantes:
+Producto seleccionado.
 
-```text
-farmacerca_cloud_ready/
-├── app.py
-├── requirements.txt
-├── .env.example
-├── Dockerfile
-├── docker-compose.yml
-├── AWS_DEPLOYMENT.md
-├── run_local.bat
-├── templates/
-├── static/
-└── tests/
-```
+Sucursal de origen.
 
-No es necesario enviar `farmacerca.db`: se genera automáticamente y contiene únicamente datos demo.
+Sucursal de destino.
 
-## Prueba rápida
+Cantidad disponible.
 
-Desde la raíz del proyecto:
+Stock después de la transferencia.
 
-```bash
-python tests/smoke_test.py
-```
+Cada operación genera un registro de movimiento.
 
-Debe mostrar:
+Alertas
 
-```text
-Smoke test OK: navegación, detalle de producto y transferencia funcionando.
-```
+Identifica automáticamente:
 
-## Health check
+Productos agotados.
 
-```text
-GET /health
-```
+Productos con stock bajo.
 
-Devuelve el estado de la aplicación y si está usando SQLite o PostgreSQL.
+Productos próximos a vencer.
+
+Las alertas permiten acceder directamente al producto o iniciar una transferencia cuando corresponde.
 
 
-- Utilidad local **reset_demo.bat** para restaurar el escenario inicial sin mostrar herramientas de prueba en la interfaz.
-- Arquitectura visible en el Dashboard para facilitar la explicación del componente cloud.
-
-Consulta también `DEMO_GUIDE.md` y `AWS_HANDOFF_CHECKLIST.md`.
