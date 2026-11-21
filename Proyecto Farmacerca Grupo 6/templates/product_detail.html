@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} · FarmaCerca{% endblock %}
+{% block content %}
+<div class="breadcrumb"><a href="/inventory">Inventario</a><span>›</span><span>{{ product.name }}</span></div>
+<div class="page-heading product-heading">
+  <div><span class="eyebrow">Detalle de producto</span><h1>{{ product.name }}</h1><p>{{ product.sku }} · {{ product.category }} · Precio referencial S/ {{ '%.2f'|format(product.price) }}</p></div>
+  <a class="primary-button" href="/transfers?product_id={{ product.id }}">Nueva transferencia →</a>
+</div>
+
+<div class="stats-grid product-stats">
+  <article class="stat-card"><span class="stat-icon">Σ</span><div><small>Stock total</small><strong>{{ total_stock }}</strong><span>unidades en todas las sedes</span></div></article>
+  <article class="stat-card healthy"><span class="stat-icon">✓</span><div><small>Sedes saludables</small><strong>{{ available_branches }}</strong><span>por encima del mínimo</span></div></article>
+  <article class="stat-card warning"><span class="stat-icon">!</span><div><small>Sedes críticas</small><strong>{{ critical_branches }}</strong><span>stock bajo o agotado</span></div></article>
+  <article class="stat-card"><span class="stat-icon">↓</span><div><small>Stock mínimo</small><strong>{{ product.min_stock }}</strong><span>umbral configurado</span></div></article>
+</div>
+
+{% if recommended_source and recommended_destination and suggested_quantity > 0 %}
+<section class="smart-recommendation">
+  <div class="recommendation-icon">↔</div>
+  <div class="grow"><span class="eyebrow">Recomendación automática</span><h2>Redistribuir {{ suggested_quantity }} unidades</h2><p><strong>{{ recommended_source.district }}</strong> tiene {{ recommended_source.stock }} u. y <strong>{{ recommended_destination.district }}</strong> tiene {{ recommended_destination.stock }} u. La transferencia ayuda a recuperar un nivel operativo sin dejar al origen bajo el mínimo.</p></div>
+  <a class="primary-button" href="/transfers?product_id={{ product.id }}&source_branch_id={{ recommended_source.branch_id }}&destination_branch_id={{ recommended_destination.branch_id }}&quantity={{ suggested_quantity }}">Crear transferencia</a>
+</section>
+{% endif %}
+
+<div class="grid-2 product-layout">
+  <section class="panel table-panel">
+    <div class="panel-heading"><div><span class="eyebrow">Disponibilidad</span><h2>Stock por sucursal</h2></div></div>
+    <div class="table-wrap"><table class="detail-table">
+      <thead><tr><th>Sucursal</th><th>Stock</th><th>Estado</th><th>Vencimiento</th><th>Acción</th></tr></thead>
+      <tbody>
+      {% for row in inventory_rows %}
+        <tr>
+          <td><strong>{{ row.district }}</strong></td>
+          <td class="stock-number">{{ row.stock }}</td>
+          <td><span class="status-pill {{ row.status }}">{% if row.status == 'available' %}Disponible{% elif row.status == 'low' %}Stock bajo{% else %}Agotado{% endif %}</span>{% if row.expiring %}<span class="status-pill expiry second-pill">Por vencer</span>{% endif %}</td>
+          <td>{{ row.expiry_date }}</td>
+          <td><div class="action-group"><a class="ghost-button" href="/transfers?product_id={{ product.id }}&destination_branch_id={{ row.branch_id }}">Transferir</a><button class="ghost-button" type="button" onclick="openStockModal({{ row.inventory_id }}, '{{ product.name|replace("'", "\\'") }}', '{{ row.district|replace("'", "\\'") }}', {{ row.stock }}, '/products/{{ product.id }}')">Editar</button></div></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading"><div><span class="eyebrow">Trazabilidad</span><h2>Movimientos recientes</h2></div></div>
+    <div class="movement-list">
+      {% for m in recent %}
+      <div class="movement"><span class="movement-icon">{{ '−' if m.quantity < 0 else '+' }}</span><div class="grow"><strong>{{ m.district }}</strong><span>{{ m.movement_type|replace('_',' ') }}{% if m.note %} · {{ m.note }}{% endif %}</span></div><strong class="{{ 'negative' if m.quantity < 0 else 'positive' }}">{{ '+' if m.quantity > 0 else '' }}{{ m.quantity }}</strong></div>
+      {% else %}<div class="empty-state">Todavía no hay movimientos registrados para este producto.</div>{% endfor %}
+    </div>
+  </section>
+</div>
+
+<div id="stockModal" class="modal-backdrop" onclick="closeStockModal(event)">
+  <div class="modal" role="dialog" aria-modal="true">
+    <button class="modal-close" onclick="hideStockModal()">×</button>
+    <span class="eyebrow">Actualizar inventario</span><h2 id="modalProduct">Producto</h2><p id="modalBranch">Sucursal</p>
+    <form method="post" action="/inventory/update">
+      <input type="hidden" name="inventory_id" id="modalInventoryId" />
+      <input type="hidden" name="return_to" id="modalReturnTo" value="/products/{{ product.id }}" />
+      <label>Nuevo stock<input type="number" min="0" name="new_stock" id="modalStock" required /></label>
+      <button class="primary-button full" type="submit">Guardar cambio</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

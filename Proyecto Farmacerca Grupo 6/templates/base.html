@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Sistema centralizado de gestión de inventario FarmaCerca" />
+  <title>{% block title %}FarmaCerca · Inventario{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', path='styles.css') }}" />
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark"><span>F</span><i>+</i></div>
+      <div><strong>FarmaCerca</strong><span>Gestión de inventario</span></div>
+    </div>
+    <nav>
+      <a class="{{ 'active' if active == 'dashboard' else '' }}" href="/"><b>⌂</b><span>Dashboard</span></a>
+      <a class="{{ 'active' if active == 'inventory' else '' }}" href="/inventory"><b>▦</b><span>Inventario</span></a>
+      <a class="{{ 'active' if active == 'branches' else '' }}" href="/branches"><b>⌖</b><span>Sucursales</span></a>
+      <a class="{{ 'active' if active == 'transfers' else '' }}" href="/transfers"><b>⇄</b><span>Transferencias</span></a>
+      <a class="{{ 'active' if active == 'alerts' else '' }}" href="/alerts"><b>!</b><span>Alertas</span></a>
+    </nav>
+    <div class="sidebar-footer">
+      <div class="support-badge"><span>FC</span><div><strong>Centro de operaciones</strong><small>Inventario multi-sucursal</small></div></div>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <button class="menu-button" aria-label="Menú" onclick="document.body.classList.toggle('menu-open')">☰</button>
+      <div class="topbar-title">
+        <span>Operaciones</span>
+        <strong>Inventario centralizado</strong>
+      </div>
+      <div class="topbar-actions">
+        <a class="topbar-alert" href="/alerts" aria-label="Ver alertas">!</a>
+        <div class="user-chip"><span>EA</span><div><strong>Administrador</strong><small>Gestión de inventario</small></div></div>
+      </div>
+    </header>
+    <section class="content">
+      {% if message %}<div class="toast success">✓ {{ message }}</div>{% endif %}
+      {% if error %}<div class="toast error">! {{ error }}</div>{% endif %}
+      {% block content %}{% endblock %}
+    </section>
+  </main>
+</div>
+<script src="{{ url_for('static', path='app.js') }}"></script>
+</body>
+</html>
