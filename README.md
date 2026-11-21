@@ -149,18 +149,7 @@ GET /health
 
 Devuelve el estado de la aplicación y si está usando SQLite o PostgreSQL.
 
-## Nota académica
 
-Los productos, cantidades, precios y sucursales son datos demostrativos para presentar el concepto. No representan información operativa real de FarmaCerca.
-
-
-## Mejoras de la versión 3
-
-- Indicador visual del entorno activo: **Local + SQLite** o **AWS + PostgreSQL/RDS**.
-- Métrica de **cobertura saludable** del inventario.
-- Salud porcentual por sucursal.
-- Recomendación automática de transferencia en el detalle de producto.
-- Formulario de transferencia prellenado desde la recomendación.
 - Utilidad local **reset_demo.bat** para restaurar el escenario inicial sin mostrar herramientas de prueba en la interfaz.
 - Arquitectura visible en el Dashboard para facilitar la explicación del componente cloud.
 
