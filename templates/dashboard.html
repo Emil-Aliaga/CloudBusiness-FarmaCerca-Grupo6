@@ -43,23 +43,13 @@
   </section>
 </div>
 
-<div class="grid-2 dashboard-bottom">
+<div class="dashboard-bottom">
   <section class="panel">
     <div class="panel-heading"><div><span class="eyebrow">Trazabilidad</span><h2>Últimos movimientos</h2></div><a href="/transfers">Ver transferencias</a></div>
     <div class="movement-list">
       {% for m in recent %}
       <div class="movement"><span class="movement-icon">{{ '−' if m.quantity < 0 else '+' }}</span><div class="grow"><strong>{{ m.product }}</strong><span>{{ m.district }} · {{ m.movement_type|replace('_',' ') }}</span></div><strong class="{{ 'negative' if m.quantity < 0 else 'positive' }}">{{ '+' if m.quantity > 0 else '' }}{{ m.quantity }}</strong></div>
       {% else %}<div class="empty-state">Los movimientos aparecerán aquí después de la primera actualización o transferencia.</div>{% endfor %}
-    </div>
-  </section>
-
-  <section class="panel quick-actions-panel">
-    <div class="panel-heading"><div><span class="eyebrow">Accesos directos</span><h2>Acciones rápidas</h2></div></div>
-    <div class="quick-actions">
-      <a class="quick-action qa-blue" href="/inventory"><span>⌕</span><div><strong>Consultar inventario</strong><small>Busca stock por producto y sede</small></div><b>→</b></a>
-      <a class="quick-action qa-magenta" href="/transfers"><span>⇄</span><div><strong>Nueva transferencia</strong><small>Redistribuye unidades entre locales</small></div><b>→</b></a>
-      <a class="quick-action qa-yellow" href="/alerts"><span>!</span><div><strong>Revisar alertas</strong><small>Prioriza quiebres y vencimientos</small></div><b>→</b></a>
-      <a class="quick-action qa-teal" href="/branches"><span>⌖</span><div><strong>Ver sucursales</strong><small>Compara el estado por local</small></div><b>→</b></a>
     </div>
   </section>
 </div>
