@@ -1,6 +1,22 @@
-.venv/
+# Python
+backend/.venv/
+backend/__pycache__/
+backend/**/*.pyc
+backend/.pytest_cache/
+backend/.env
+backend/farmacerca.db
+backend/tests/*.db
+
+# OS / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
 __pycache__/
 *.pyc
+*.db
+.venv/
+backend/.venv/
 .env
-farmacerca.db
-.pytest_cache/
+backend/.env

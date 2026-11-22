@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 set -e
-cd "$(dirname "$0")"
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install --upgrade pip
-pip install -r requirements.txt
-python -m uvicorn app:app --reload --host 127.0.0.1 --port 8000
+ROOT="$(cd "$(dirname "$0")" && pwd)"
+("$ROOT/backend/run_local.sh") &
+BACK_PID=$!
+sleep 4
+("$ROOT/frontend/run_local.sh") &
+FRONT_PID=$!
+echo "Frontend: http://127.0.0.1:5500"
+echo "Backend:  http://127.0.0.1:8000"
+wait $BACK_PID $FRONT_PID
