@@ -41,7 +41,15 @@ async function api(path, options = {}) {
   });
   let body = null;
   try { body = await response.json(); } catch (_) {}
-  if (!response.ok) throw new Error(body?.detail || `Error ${response.status}`);
+  if (!response.ok) {
+    let message = `Error ${response.status}`;
+    if (typeof body?.detail === "string") {
+      message = body.detail;
+    } else if (Array.isArray(body?.detail)) {
+      message = body.detail.map(item => item.msg || "Solicitud inválida").join(" · ");
+    }
+    throw new Error(message);
+  }
   return body;
 }
 
@@ -146,7 +154,12 @@ async function renderInventory() {
   const q = params.get("q") || "";
   const branch = params.get("branch") || "";
   const status = params.get("status") || "all";
-  const data = await api(`/api/inventory?${new URLSearchParams({ q, branch, status }).toString()}`);
+  const apiParams = new URLSearchParams();
+  if (q) apiParams.set("q", q);
+  if (branch) apiParams.set("branch", branch);
+  if (status && status !== "all") apiParams.set("status", status);
+  const query = apiParams.toString();
+  const data = await api(`/api/inventory${query ? `?${query}` : ""}`);
   const branchOptions = data.branches.map(b => `<option value="${b.id}" ${String(b.id) === branch ? "selected" : ""}>${esc(b.district)}</option>`).join("");
   const rows = data.rows.map(r => `
     <tr>
