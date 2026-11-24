@@ -64,16 +64,15 @@ function shell(content) {
     <div class="app-shell">
       <aside class="sidebar" id="sidebar">
         <a class="brand" href="index.html">
-          <div class="brand-mark"><span>F</span><i>+</i></div>
-          <div><strong>FarmaCerca</strong><span>Gestión de inventario</span></div>
+          <div class="brand-mark" aria-hidden="true"></div>
+          <div><strong>FarmaCerca</strong></div>
         </a>
         <nav>${nav}</nav>
       </aside>
       <main>
         <header class="topbar">
           <button class="menu-button" id="menuButton" aria-label="Abrir menú">☰</button>
-          <div class="topbar-title"><span>Operaciones</span><strong>Inventario centralizado</strong></div>
-          <div class="user-chip"><strong>Administrador</strong><small>Gestión de inventario</small></div>
+
         </header>
         <section class="content" id="content">${content}</section>
       </main>
@@ -108,7 +107,7 @@ function statusPill(status) {
 }
 
 function pageHeading(eyebrow, title, subtitle, action = "") {
-  return `<div class="page-heading"><div><span class="eyebrow">${eyebrow}</span><h1>${title}</h1><p>${subtitle}</p></div>${action}</div>`;
+  return `<div class="page-heading"><div><span class="eyebrow">${eyebrow}</span><h1>${title}</h1></div>${action}</div>`;
 }
 
 async function renderDashboard() {
@@ -132,7 +131,7 @@ async function renderDashboard() {
   `).join("") || `<div class="empty-state">Los movimientos aparecerán aquí.</div>`;
 
   shell(`
-    ${pageHeading("Resumen operativo", "Dashboard de inventario", "Monitorea disponibilidad, alertas y movimientos en todas las sucursales.", `<a class="primary-button" href="inventory.html">Buscar producto →</a>`)}
+    ${pageHeading("Vista general", "Dashboard de inventario", "Monitorea disponibilidad, alertas y movimientos en todas las sucursales.", `<a class="primary-button" href="inventory.html">Buscar producto →</a>`)}
     <div class="stats-grid stats-grid-6">
       <article class="stat-card"><span class="stat-icon">⌂</span><div><small>Sucursales</small><strong>${s.branches}</strong><span>integradas al sistema</span></div></article>
       <article class="stat-card magenta"><span class="stat-icon">▦</span><div><small>Productos</small><strong>${s.products}</strong><span>en catálogo activo</span></div></article>
@@ -142,10 +141,10 @@ async function renderDashboard() {
       <article class="stat-card purple"><span class="stat-icon">◷</span><div><small>Por vencer</small><strong>${s.expiring}</strong><span>en próximos 60 días</span></div></article>
     </div>
     <div class="grid-2">
-      <section class="panel"><div class="panel-heading"><div><span class="eyebrow">Atención requerida</span><h2>Alertas recientes</h2></div><a href="alerts.html">Ver todas</a></div><div class="alert-list">${alerts}</div></section>
-      <section class="panel"><div class="panel-heading"><div><span class="eyebrow">Red de locales</span><h2>Salud del inventario</h2></div><a href="branches.html">Ver sucursales</a></div><div class="branch-list">${branches}</div></section>
+      <section class="panel"><div class="panel-heading"><div><span class="eyebrow">Para revisar</span><h2>Alertas recientes</h2></div><a href="alerts.html">Ver todas</a></div><div class="alert-list">${alerts}</div></section>
+      <section class="panel"><div class="panel-heading"><div><span class="eyebrow">Por sucursal</span><h2>Salud del inventario</h2></div><a href="branches.html">Ver sucursales</a></div><div class="branch-list">${branches}</div></section>
     </div>
-    <section class="panel dashboard-bottom"><div class="panel-heading"><div><span class="eyebrow">Trazabilidad</span><h2>Últimos movimientos</h2></div><a href="transfers.html">Ver transferencias</a></div><div class="movement-list">${recent}</div></section>
+    <section class="panel dashboard-bottom"><div class="panel-heading"><div><span class="eyebrow">Historial</span><h2>Últimos movimientos</h2></div><a href="transfers.html">Ver transferencias</a></div><div class="movement-list">${recent}</div></section>
   `);
 }
 
@@ -169,7 +168,7 @@ async function renderInventory() {
     </tr>`).join("") || `<tr><td colspan="6" class="empty-state">No se encontraron resultados.</td></tr>`;
 
   shell(`
-    ${pageHeading("Consulta centralizada", "Inventario por sucursal", "Busca productos y revisa su disponibilidad en toda la red.")}
+    ${pageHeading("Busca tus productos", "Inventario por sucursal", "Busca productos y revisa su disponibilidad en toda la red.")}
     <form class="filter-panel" id="filterForm">
       <label class="search-field"><span>⌕</span><input type="search" name="q" value="${esc(q)}" placeholder="Buscar medicamento, SKU o categoría..." /></label>
       <select name="branch"><option value="">Todas las sucursales</option>${branchOptions}</select>
@@ -215,14 +214,14 @@ async function renderBranches() {
       <div class="health-progress"><span style="width:${b.health}%"></span></div>
       <div class="branch-metrics"><div><small>Unidades</small><strong>${b.units}</strong></div><div><small>Productos</small><strong>${b.products}</strong></div><div class="metric-warning"><small>Stock bajo</small><strong>${b.low}</strong></div><div class="metric-danger"><small>Agotados</small><strong>${b.out}</strong></div></div>
       <div class="branch-card-actions"><a class="primary-button" href="inventory.html?branch=${b.id}">Ver inventario</a></div></article>`).join("");
-  shell(`${pageHeading("Red de locales", "Sucursales", "Compara la situación del inventario entre sedes.")}<div class="branch-cards">${cards}</div>`);
+  shell(`${pageHeading("Nuestras sucursales", "Sucursales", "Compara la situación del inventario entre sedes.")}<div class="branch-cards">${cards}</div>`);
 }
 
 async function renderAlerts() {
   const data = await api("/api/alerts");
   const rows = data.alerts.map(a => `
     <tr><td>${statusPill(a.status)}</td><td><a class="text-link" href="product.html?id=${a.product_id}"><strong>${esc(a.name)}</strong></a><span class="subtext">${esc(a.sku)}</span></td><td>${esc(a.district)}</td><td class="stock-number">${a.stock}</td><td>${a.min_stock}</td><td>${formatDate(a.expiry_date)}</td><td><div class="action-group"><a class="ghost-button" href="product.html?id=${a.product_id}">Ver</a><a class="primary-button tiny" href="transfers.html?product_id=${a.product_id}&destination_branch_id=${a.branch_id}">Transferir</a></div></td></tr>`).join("") || `<tr><td colspan="7" class="empty-state">No hay alertas activas.</td></tr>`;
-  shell(`${pageHeading("Control preventivo", "Alertas de inventario", "Prioriza agotados, niveles bajos y productos próximos a vencer.")}<div class="legend"><span><i class="dot red"></i>Agotado</span><span><i class="dot amber"></i>Stock bajo</span><span><i class="dot violet"></i>Próximo a vencer</span></div><section class="panel table-panel"><div class="table-wrap"><table><thead><tr><th>Prioridad</th><th>Producto</th><th>Sucursal</th><th>Stock</th><th>Mínimo</th><th>Vencimiento</th><th>Acciones</th></tr></thead><tbody>${rows}</tbody></table></div></section>`);
+  shell(`${pageHeading("Avisos importantes", "Alertas de inventario", "Prioriza agotados, niveles bajos y productos próximos a vencer.")}<div class="legend"><span><i class="dot red"></i>Agotado</span><span><i class="dot amber"></i>Stock bajo</span><span><i class="dot violet"></i>Próximo a vencer</span></div><section class="panel table-panel"><div class="table-wrap"><table><thead><tr><th>Prioridad</th><th>Producto</th><th>Sucursal</th><th>Stock</th><th>Mínimo</th><th>Vencimiento</th><th>Acciones</th></tr></thead><tbody>${rows}</tbody></table></div></section>`);
 }
 
 async function renderTransfers() {
@@ -236,7 +235,7 @@ async function renderTransfers() {
   const branchOpts = selected => data.branches.map(b => `<option value="${b.id}" ${String(b.id) === selected ? "selected" : ""}>${esc(b.district)}</option>`).join("");
   const recent = data.recent.map(m => `<div class="movement"><span class="movement-icon">${m.movement_type === "TRANSFERENCIA_SALIDA" ? "→" : "←"}</span><div class="grow"><strong>${esc(m.product)}</strong><span>${esc(m.district)} · ${formatDateTime(m.created_at)}</span></div><strong class="${m.quantity < 0 ? "negative" : "positive"}">${m.quantity > 0 ? "+" : ""}${m.quantity}</strong></div>`).join("") || `<div class="empty-state">Todavía no se han realizado transferencias.</div>`;
 
-  shell(`${pageHeading("Redistribución de stock", "Transferencias entre sucursales", "Mueve unidades desde una sede con disponibilidad hacia otra que las necesita.")}<div class="grid-2 transfer-layout"><section class="panel form-panel"><div class="panel-heading"><div><span class="eyebrow">Nueva operación</span><h2>Registrar transferencia</h2></div></div><form id="transferForm" class="stack-form"><label>Producto<select name="product_id" required><option value="">Seleccionar producto</option>${pOpts}</select></label><div class="form-grid"><label>Desde<select name="source_branch_id" required><option value="">Sucursal origen</option>${branchOpts(sourceId)}</select></label><label>Hacia<select name="destination_branch_id" required><option value="">Sucursal destino</option>${branchOpts(destId)}</select></label></div><label>Cantidad de unidades<input type="number" min="1" name="quantity" value="${esc(quantity)}" required placeholder="Ej. 15" /></label><div class="info-box">El sistema valida el stock disponible y actualiza automáticamente origen, destino y trazabilidad.</div><button class="primary-button full">Confirmar transferencia</button></form></section><section class="panel"><div class="panel-heading"><div><span class="eyebrow">Trazabilidad</span><h2>Movimientos recientes</h2></div></div><div class="movement-list">${recent}</div></section></div>`);
+  shell(`${pageHeading("Traslado de productos", "Transferencias entre sucursales", "Mueve unidades desde una sede con disponibilidad hacia otra que las necesita.")}<div class="grid-2 transfer-layout"><section class="panel form-panel"><div class="panel-heading"><div><span class="eyebrow">Nueva transferencia</span><h2>Registrar transferencia</h2></div></div><form id="transferForm" class="stack-form"><label>Producto<select name="product_id" required><option value="">Seleccionar producto</option>${pOpts}</select></label><div class="form-grid"><label>Desde<select name="source_branch_id" required><option value="">Sucursal origen</option>${branchOpts(sourceId)}</select></label><label>Hacia<select name="destination_branch_id" required><option value="">Sucursal destino</option>${branchOpts(destId)}</select></label></div><label>Cantidad de unidades<input type="number" min="1" name="quantity" value="${esc(quantity)}" required placeholder="Ej. 15" /></label><div class="info-box">El sistema valida el stock disponible y actualiza automáticamente origen, destino y trazabilidad.</div><button class="primary-button full">Confirmar transferencia</button></form></section><section class="panel"><div class="panel-heading"><div><span class="eyebrow">Historial</span><h2>Movimientos recientes</h2></div></div><div class="movement-list">${recent}</div></section></div>`);
 
   document.getElementById("transferForm").addEventListener("submit", async e => {
     e.preventDefault();
@@ -255,11 +254,11 @@ async function renderProduct() {
   const data = await api(`/api/products/${id}`);
   const p = data.product;
   const rec = data.recommendation;
-  const recommendation = rec.source && rec.destination && rec.quantity > 0 ? `<section class="smart-recommendation"><div class="recommendation-icon">↔</div><div class="grow"><span class="eyebrow">Recomendación automática</span><h2>Redistribuir ${rec.quantity} unidades</h2><p><strong>${esc(rec.source.district)}</strong> tiene ${rec.source.stock} u. y <strong>${esc(rec.destination.district)}</strong> tiene ${rec.destination.stock} u.</p></div><a class="primary-button" href="transfers.html?product_id=${p.id}&source_branch_id=${rec.source.branch_id}&destination_branch_id=${rec.destination.branch_id}&quantity=${rec.quantity}">Crear transferencia →</a></section>` : "";
+  const recommendation = rec.source && rec.destination && rec.quantity > 0 ? `<section class="smart-recommendation"><div class="recommendation-icon">↔</div><div class="grow"><span class="eyebrow">Sugerencia para ti</span><h2>Redistribuir ${rec.quantity} unidades</h2><p><strong>${esc(rec.source.district)}</strong> tiene ${rec.source.stock} u. y <strong>${esc(rec.destination.district)}</strong> tiene ${rec.destination.stock} u.</p></div><a class="primary-button" href="transfers.html?product_id=${p.id}&source_branch_id=${rec.source.branch_id}&destination_branch_id=${rec.destination.branch_id}&quantity=${rec.quantity}">Crear transferencia →</a></section>` : "";
   const invRows = data.inventory.map(r => `<tr><td><strong>${esc(r.district)}</strong></td><td class="stock-number">${r.stock}</td><td>${statusPill(r.status)}${r.expiring ? ` ${statusPill("expiry")}` : ""}</td><td>${formatDate(r.expiry_date)}</td><td><div class="action-group"><a class="ghost-button" href="transfers.html?product_id=${p.id}&destination_branch_id=${r.branch_id}">Transferir</a><button class="ghost-button edit-stock" data-id="${r.inventory_id}" data-name="${esc(p.name)}" data-branch="${esc(r.district)}" data-stock="${r.stock}">Editar</button></div></td></tr>`).join("");
   const recent = data.recent.map(m => `<div class="movement"><span class="movement-icon">${m.quantity < 0 ? "−" : "+"}</span><div class="grow"><strong>${esc(m.district)}</strong><span>${esc(m.movement_type.replaceAll("_", " "))}${m.note ? ` · ${esc(m.note)}` : ""}</span></div><strong class="${m.quantity < 0 ? "negative" : "positive"}">${m.quantity > 0 ? "+" : ""}${m.quantity}</strong></div>`).join("") || `<div class="empty-state">Todavía no hay movimientos registrados.</div>`;
 
-  shell(`<div class="breadcrumb"><a href="inventory.html">Inventario</a><span>›</span><span>${esc(p.name)}</span></div>${pageHeading("Detalle de producto", esc(p.name), `${esc(p.sku)} · ${esc(p.category)} · ${money(p.price)}`, `<a class="primary-button" href="transfers.html?product_id=${p.id}">Nueva transferencia →</a>`)}<div class="stats-grid product-stats"><article class="stat-card"><span class="stat-icon">Σ</span><div><small>Stock total</small><strong>${data.metrics.total_stock}</strong><span>unidades en todas las sedes</span></div></article><article class="stat-card healthy"><span class="stat-icon">✓</span><div><small>Sedes saludables</small><strong>${data.metrics.available_branches}</strong><span>por encima del mínimo</span></div></article><article class="stat-card warning"><span class="stat-icon">!</span><div><small>Sedes críticas</small><strong>${data.metrics.critical_branches}</strong><span>stock bajo o agotado</span></div></article><article class="stat-card"><span class="stat-icon">↓</span><div><small>Stock mínimo</small><strong>${p.min_stock}</strong><span>umbral configurado</span></div></article></div>${recommendation}<div class="grid-2 product-layout"><section class="panel table-panel"><div class="panel-heading"><div><span class="eyebrow">Disponibilidad</span><h2>Stock por sucursal</h2></div></div><div class="table-wrap"><table class="detail-table"><thead><tr><th>Sucursal</th><th>Stock</th><th>Estado</th><th>Vencimiento</th><th>Acción</th></tr></thead><tbody>${invRows}</tbody></table></div></section><section class="panel"><div class="panel-heading"><div><span class="eyebrow">Trazabilidad</span><h2>Movimientos recientes</h2></div></div><div class="movement-list">${recent}</div></section></div>`);
+  shell(`<div class="breadcrumb"><a href="inventory.html">Inventario</a><span>›</span><span>${esc(p.name)}</span></div>${pageHeading("Información del producto", esc(p.name), `${esc(p.sku)} · ${esc(p.category)} · ${money(p.price)}`, `<a class="primary-button" href="transfers.html?product_id=${p.id}">Nueva transferencia →</a>`)}<div class="stats-grid product-stats"><article class="stat-card"><span class="stat-icon">Σ</span><div><small>Stock total</small><strong>${data.metrics.total_stock}</strong><span>unidades en todas las sedes</span></div></article><article class="stat-card healthy"><span class="stat-icon">✓</span><div><small>Sedes saludables</small><strong>${data.metrics.available_branches}</strong><span>por encima del mínimo</span></div></article><article class="stat-card warning"><span class="stat-icon">!</span><div><small>Sedes críticas</small><strong>${data.metrics.critical_branches}</strong><span>stock bajo o agotado</span></div></article><article class="stat-card"><span class="stat-icon">↓</span><div><small>Stock mínimo</small><strong>${p.min_stock}</strong><span>umbral configurado</span></div></article></div>${recommendation}<div class="grid-2 product-layout"><section class="panel table-panel"><div class="panel-heading"><div><span class="eyebrow">Disponibilidad</span><h2>Stock por sucursal</h2></div></div><div class="table-wrap"><table class="detail-table"><thead><tr><th>Sucursal</th><th>Stock</th><th>Estado</th><th>Vencimiento</th><th>Acción</th></tr></thead><tbody>${invRows}</tbody></table></div></section><section class="panel"><div class="panel-heading"><div><span class="eyebrow">Historial</span><h2>Movimientos recientes</h2></div></div><div class="movement-list">${recent}</div></section></div>`);
   document.querySelectorAll(".edit-stock").forEach(btn => btn.addEventListener("click", () => openStockModal(btn.dataset)));
 }
 
